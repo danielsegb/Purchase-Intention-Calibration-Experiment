@@ -1,0 +1,12 @@
+Model,FeatureCondition,BestParams,Count
+Logistic Regression,All predictors,"{""model__C"": 0.1}",10
+Logistic Regression,Without PageValues,"{""model__C"": 0.1}",10
+XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",6
+XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",1
+XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",1
+XGBoost,All predictors,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",1
+XGBoost,All predictors,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",1
+XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",5
+XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",2
+XGBoost,Without PageValues,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",2
+XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",1
