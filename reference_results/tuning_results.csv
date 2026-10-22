@@ -1,0 +1,41 @@
+Seed,Model,FeatureCondition,BestParams,TrainingCV_LogLoss,TuningSeconds
+1,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.2911238551922371,2.1869404590001977
+1,XGBoost,All predictors,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2241070067018014,11.946694922000006
+1,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3770525913109961,0.3056730610001068
+1,XGBoost,Without PageValues,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3649604644275863,11.025254599000164
+2,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.2931639453730688,2.045645770000192
+2,XGBoost,All predictors,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.2246985351925435,12.12933734399985
+2,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3794966207368677,0.3036641300000156
+2,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.36442921209783,11.562956748000031
+3,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.3018894366891708,2.0990134830003626
+3,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2279061481213,11.828615651999826
+3,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3791356998321664,0.3269809009998425
+3,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3648760166954264,11.012009685000066
+4,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.2947162253518036,2.099778096999671
+4,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2274233791679267,12.70430171299995
+4,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.377771417854114,0.2979094020001867
+4,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3651667466766875,11.149079676999918
+5,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.3005044658128729,2.1394502600001037
+5,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2289118134389219,12.023604433999935
+5,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3808817633244996,0.2905937790001189
+5,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.366638431313068,11.813529986000049
+6,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.2944910510504762,2.179367116999856
+6,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2298611796715195,12.299242153999783
+6,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3777378276132804,0.381692264999856
+6,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3628546402143547,12.54631523099988
+7,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.3021761480520438,2.4221273040002416
+7,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.2303510268522187,12.681008905
+7,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.382166654965663,0.290781249000247
+7,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 5, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3691326414624992,13.188056928000153
+8,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.2964748806713509,2.2788997099996777
+8,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2277905312235857,12.292964421000306
+8,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3818475928145947,0.2971860399998149
+8,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3649134319970299,10.872509465999885
+9,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.2919072986328356,2.0492627319999883
+9,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2247636026957024,11.64378508300024
+9,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3803008617183383,0.2783816799997112
+9,XGBoost,Without PageValues,"{""model__colsample_bytree"": 1.0, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3631579173904807,10.930304893000084
+10,Logistic Regression,All predictors,"{""model__C"": 0.1}",0.3009201730402862,2.0879514200000813
+10,XGBoost,All predictors,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 1.0}",0.2359761622809418,12.26622386200006
+10,Logistic Regression,Without PageValues,"{""model__C"": 0.1}",0.3785631740272642,0.3050120099997002
+10,XGBoost,Without PageValues,"{""model__colsample_bytree"": 0.8, ""model__learning_rate"": 0.05, ""model__max_depth"": 3, ""model__n_estimators"": 200, ""model__subsample"": 0.8}",0.3664148970550889,11.158014037000155
