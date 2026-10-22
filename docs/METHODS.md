@@ -1,6 +1,6 @@
 # Experimental protocol
 
-This document mirrors the computational protocol reported in the manuscript.
+This document describes the computational protocol used in the experiment.
 
 ## Data preparation
 
