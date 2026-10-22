@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this code, please cite the associated manuscript."
-title: "Reproducibility code for Calibration and Feature Dependence in Online Purchase Intention Prediction"
+message: "Please cite this software repository if you use the experiment code."
+title: "Purchase Intention Calibration Experiment"
 type: software
 authors:
   - family-names: "Emmanuel"
