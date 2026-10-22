@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the associated manuscript."
+title: "Reproducibility code for Calibration and Feature Dependence in Online Purchase Intention Prediction"
+type: software
+authors:
+  - family-names: "Emmanuel"
+    given-names: "Daniel Segboru"
+  - family-names: "Emmanuel"
+    given-names: "Ikiomoye Douglas"
+  - family-names: "Enyagam"
+    given-names: "Princess"
+  - family-names: "Nelson"
+    given-names: "Ogechi"
+version: 1.0.0
+date-released: 2026-10-22
+repository-code: "https://github.com/danielsegb/purchase-intention-calibration-reproducibility"
