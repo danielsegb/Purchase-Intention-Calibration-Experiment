@@ -92,4 +92,4 @@ Paired comparisons are calculated by random seed using unrounded repetition-leve
 
 ## Reliability diagrams
 
-For the all-predictor configuration, test predictions from all ten repeated partitions are pooled separately by model and calibration condition. Ten equal-width probability bins are then used to plot mean predicted probability against observed purchase frequency. The dashed 45-degree line represents perfect calibration.
+For the all-predictor configuration, test predictions from all ten repeated partitions are pooled separately by model and calibration condition. Ten equal-width probability bins are then used to plot mean predicted probability against observed purchase frequency. Bin assignment follows the uniform-bin convention used by scikit-learn calibration curves, including lower-bin assignment for probabilities exactly on an internal edge. The dashed 45-degree line represents perfect calibration.
