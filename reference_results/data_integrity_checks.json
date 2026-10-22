@@ -1,0 +1,10 @@
+{
+  "original_rows": 12330,
+  "original_columns": 18,
+  "exact_duplicate_rows": 125,
+  "missing_cells": 0,
+  "rows_after_duplicate_removal": 12205,
+  "positive_class_count_after_dedup": 1908,
+  "negative_class_count_after_dedup": 10297,
+  "positive_class_rate_after_dedup": 0.15632937320770177
+}
