@@ -40,7 +40,7 @@ def main(output_dir: Path, atol: float) -> None:
     worst_col, worst = max(diffs, key=lambda x: x[1])
     print(f"Maximum absolute metric difference: {worst:.12g} ({worst_col})")
     if worst > atol:
-        raise SystemExit(f"FAIL: fresh run differs from retained reference results beyond atol={atol}.")
+        raise SystemExit(f"FAIL: fresh run differs from reference results beyond atol={atol}.")
 
     g_tune = canonical(pd.read_csv(output_dir / "tuning_results.csv"), ["Seed", "Model", "FeatureCondition"])
     r_tune = canonical(pd.read_csv(REFERENCE / "tuning_results.csv"), ["Seed", "Model", "FeatureCondition"])
@@ -49,7 +49,7 @@ def main(output_dir: Path, atol: float) -> None:
     ):
         raise SystemExit("FAIL: at least one selected hyperparameter configuration differs.")
 
-    print("PASS: fresh results reproduce the retained manuscript analysis within tolerance.")
+    print("PASS: fresh results reproduce the reference experiment run within tolerance.")
 
 
 if __name__ == "__main__":
