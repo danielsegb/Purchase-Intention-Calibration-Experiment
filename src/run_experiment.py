@@ -240,7 +240,7 @@ def pooled_reliability(predictions: pd.DataFrame) -> pd.DataFrame:
     rows: list[dict] = []
     edges = np.linspace(0.0, 1.0, 11)
     subset = predictions[predictions["FeatureCondition"] == "All predictors"].copy()
-    subset["Bin"] = np.digitize(subset["Probability"], edges[1:-1], right=False)
+    # Match scikit-learn calibration_curve(strategy="uniform"): values exactly\n    # on an internal bin edge are assigned to the lower bin. This matters for\n    # isotonic calibration, which can produce repeated probabilities at edges.\n    subset["Bin"] = np.searchsorted(edges[1:-1], subset["Probability"].to_numpy())
     for (model, calibration, bin_id), g in subset.groupby(["Model", "Calibration", "Bin"], sort=True):
         rows.append({
             "Model": model,
