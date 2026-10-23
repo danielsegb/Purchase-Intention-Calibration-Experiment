@@ -114,13 +114,7 @@ Verify a fresh run against the included reference outputs:
 python scripts/verify_results.py --output-dir outputs
 ```
 
-On Windows, the complete workflow can also be run with:
-
-```text
-run_all.bat
-```
-
-On macOS/Linux:
+On macOS/Linux, the complete workflow can also be run with:
 
 ```bash
 bash run_all.sh
