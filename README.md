@@ -90,6 +90,10 @@ conda env create -f environment.yml
 conda activate purchase-intention-calibration
 ```
 
+The experiment performs a startup check for the two versions most likely to affect model reproducibility: **scikit-learn 1.8.0** and **XGBoost 3.1.3**. If either version differs, the run stops with a clear error rather than producing results under a different environment.
+
+For reproducibility across operating systems and reviewer machines, hyperparameter search is executed with a single worker (`GridSearchCV(n_jobs=1)`). This changes only task scheduling; the folds, parameter grids, scoring criterion and selected models remain unchanged.
+
 ## Run the experiment
 
 Download the dataset:
