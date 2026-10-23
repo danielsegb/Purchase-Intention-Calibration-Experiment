@@ -1,3 +1,5 @@
+"""Download and verify the UCI Online Shoppers Purchasing Intention dataset."""
+
 from __future__ import annotations
 
 import hashlib
@@ -15,7 +17,8 @@ OUT_DIR = Path(__file__).resolve().parents[1] / "data"
 OUT_FILE = OUT_DIR / "online_shoppers_intention.csv"
 
 
-def sha256(path: Path) -> str:
+def calculate_sha256(path: Path) -> str:
+    """Compute the SHA-256 hex digest of a file."""
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
@@ -24,8 +27,9 @@ def sha256(path: Path) -> str:
 
 
 def main() -> None:
+    """Download official UCI archive, extract CSV, and verify integrity."""
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"Downloading official UCI dataset from:\n{URL}")
+    print(f"Downloading dataset from:\n{URL}")
     with urllib.request.urlopen(URL) as response:
         payload = response.read()
 
@@ -36,15 +40,14 @@ def main() -> None:
         with zf.open(candidates[0]) as src, OUT_FILE.open("wb") as dst:
             dst.write(src.read())
 
-    digest = sha256(OUT_FILE)
+    digest = calculate_sha256(OUT_FILE)
     print(f"Saved: {OUT_FILE}")
     print(f"SHA-256: {digest}")
     if digest != EXPECTED_SHA256:
         raise RuntimeError(
-            "Downloaded CSV hash differs from the file used for the reported experiment. "
-            "Do not proceed without checking whether UCI has changed the file."
+            f"Downloaded CSV hash ({digest}) differs from expected hash ({EXPECTED_SHA256})."
         )
-    print("Dataset hash matches the reported experiment.")
+    print("Dataset integrity verified successfully.")
 
 
 if __name__ == "__main__":

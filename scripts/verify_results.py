@@ -1,3 +1,9 @@
+"""Verify experiment outputs against baseline reference results.
+
+Compares summary metrics, evaluates core experimental conclusions, and
+displays benchmark tables.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -16,10 +22,12 @@ METRICS = ["Brier", "LogLoss", "ECE", "ROC_AUC", "PR_AUC", "F1"]
 
 
 def canonical(df: pd.DataFrame, keys: list[str]) -> pd.DataFrame:
+    """Sort and reset index of dataframe by grouping keys."""
     return df.sort_values(keys).reset_index(drop=True)
 
 
 def max_abs_differences(generated: pd.DataFrame, reference: pd.DataFrame) -> dict[str, float]:
+    """Compute maximum absolute difference per metric between two dataframes."""
     out = {}
     for metric in METRICS:
         out[metric] = float(
@@ -34,6 +42,7 @@ def max_abs_differences(generated: pd.DataFrame, reference: pd.DataFrame) -> dic
 
 
 def main(output_dir: Path, strict: bool, atol: float) -> None:
+    """Run data integrity and metric verification on generated outputs."""
     generated_integrity = json.loads(
         (output_dir / "data_integrity_checks.json").read_text(encoding="utf-8")
     )
@@ -55,14 +64,14 @@ def main(output_dir: Path, strict: bool, atol: float) -> None:
     for metric, value in diffs.items():
         print(f"  {metric:8s} {value:.12g}")
 
-    # Logistic Regression should be numerically stable across the tested environments.
+    # Logistic Regression should be numerically identical across platforms.
     lr_generated = generated[generated["Model"] == "Logistic Regression"].reset_index(drop=True)
     lr_reference = reference[reference["Model"] == "Logistic Regression"].reset_index(drop=True)
     lr_diffs = max_abs_differences(lr_generated, lr_reference)
     worst_lr = max(lr_diffs.values())
     if worst_lr > atol:
         raise SystemExit(
-            f"FAIL: Logistic Regression differs from the reference beyond atol={atol}; "
+            f"FAIL: Logistic Regression differs from reference beyond atol={atol}; "
             f"maximum difference={worst_lr:.12g}."
         )
 
@@ -70,14 +79,14 @@ def main(output_dir: Path, strict: bool, atol: float) -> None:
         worst = max(diffs.values())
         if worst > atol:
             raise SystemExit(
-                f"STRICT FAIL: at least one metric differs from the reference beyond atol={atol}; "
+                f"STRICT FAIL: at least one metric differs from reference beyond atol={atol}; "
                 f"maximum difference={worst:.12g}. "
-                "Strict mode is intended for the same platform/build environment."
+                "Strict mode is intended for identical compiler/hardware environments."
             )
         print("STRICT PASS: results match the reference run within tolerance.")
         return
 
-    # Portable verification checks the reproducibility of the experimental conclusions.
+    # Core experimental conclusion checks
     def value(model: str, feature: str, calibration: str, metric: str) -> float:
         row = generated[
             (generated["Model"] == model)
@@ -124,11 +133,11 @@ def main(output_dir: Path, strict: bool, atol: float) -> None:
 
     print(
         "\nPORTABLE PASS: dataset integrity, Logistic Regression results, and core "
-        "experimental conclusions reproduce successfully."
+        "experimental conclusions verified successfully."
     )
 
     print("\n" + "=" * 95)
-    print("REPRODUCED RESULTS (Mean +/- SD rounded to 4 decimals, matching Paper Tables 1 & 2)")
+    print("BENCHMARK RESULTS (Mean +/- SD rounded to 4 decimals)")
     print("=" * 95)
 
     print("\n--- Table 1: Performance with all predictors across ten repetitions (Mean +/- SD) ---")
@@ -160,13 +169,13 @@ def main(output_dir: Path, strict: bool, atol: float) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser = argparse.ArgumentParser(description="Verify benchmark results against reference baseline.")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT, help="Path to generated outputs directory.")
     parser.add_argument(
         "--strict",
         action="store_true",
         help="Require every summary metric to match the reference within --atol.",
     )
-    parser.add_argument("--atol", type=float, default=1e-10)
+    parser.add_argument("--atol", type=float, default=1e-10, help="Absolute tolerance for strict check.")
     args = parser.parse_args()
     main(args.output_dir, args.strict, args.atol)

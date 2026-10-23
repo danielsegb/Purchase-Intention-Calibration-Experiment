@@ -87,7 +87,7 @@ def check_environment(skip: bool = False) -> None:
 
 
 def expected_calibration_error(y_true: np.ndarray, p: np.ndarray, n_bins: int = 10) -> float:
-    """Expected calibration error using equal-width bins over [0, 1]."""
+    """Compute Expected Calibration Error (ECE) using equal-width bins over [0, 1]."""
     y_true = np.asarray(y_true, dtype=float)
     p = np.asarray(p, dtype=float)
     edges = np.linspace(0.0, 1.0, n_bins + 1)
@@ -103,6 +103,7 @@ def expected_calibration_error(y_true: np.ndarray, p: np.ndarray, n_bins: int = 
 
 
 def metric_row(y_true: np.ndarray, p: np.ndarray) -> dict[str, float]:
+    """Calculate calibration, discrimination, and threshold classification metrics."""
     eps = np.finfo(float).eps
     p = np.clip(np.asarray(p, dtype=float), eps, 1.0 - eps)
     return {
@@ -116,6 +117,7 @@ def metric_row(y_true: np.ndarray, p: np.ndarray) -> dict[str, float]:
 
 
 def infer_column_types(df: pd.DataFrame, target: str) -> tuple[list[str], list[str]]:
+    """Partition dataset features into numeric and categorical column lists."""
     X = df.drop(columns=[target])
     categorical = [
         c
@@ -135,6 +137,7 @@ def infer_column_types(df: pd.DataFrame, target: str) -> tuple[list[str], list[s
 
 
 def build_lr_pipeline(numeric: list[str], categorical: list[str]) -> Pipeline:
+    """Build Logistic Regression pipeline with standard scaling and one-hot encoding."""
     pre = ColumnTransformer(
         [
             ("num", StandardScaler(), numeric),
@@ -142,7 +145,7 @@ def build_lr_pipeline(numeric: list[str], categorical: list[str]) -> Pipeline:
         ],
         remainder="drop",
     )
-    # L2 regularisation is the default in scikit-learn lbfgs solver;
+    # L2 regularisation is default in scikit-learn lbfgs solver;
     # omitting penalty='l2' avoids scikit-learn 1.8+ FutureWarning.
     model = LogisticRegression(
         solver="lbfgs",
@@ -153,6 +156,7 @@ def build_lr_pipeline(numeric: list[str], categorical: list[str]) -> Pipeline:
 
 
 def build_xgb_pipeline(numeric: list[str], categorical: list[str], seed: int) -> Pipeline:
+    """Build XGBoost pipeline with one-hot encoding (numeric features unscaled)."""
     pre = ColumnTransformer(
         [
             ("num", "passthrough", numeric),
@@ -179,6 +183,7 @@ def fit_tuned_model(
     seed: int,
     n_jobs: int = 1,
 ):
+    """Tune model hyperparameters via stratified 5-fold cross-validation on log loss."""
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
     if model_name == "Logistic Regression":
         pipe = build_lr_pipeline(numeric, categorical)
@@ -203,6 +208,7 @@ def fit_tuned_model(
 
 
 def summarise(results: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate metric results across partitions (mean, standard deviation, 95% CI)."""
     rows: list[dict] = []
     group_cols = ["Model", "FeatureCondition", "Calibration"]
     tcrit = stats.t.ppf(0.975, df=9)
@@ -222,6 +228,7 @@ def summarise(results: pd.DataFrame) -> pd.DataFrame:
 
 
 def paired_summary(values: np.ndarray) -> tuple[float, float, float, float]:
+    """Calculate mean paired difference, standard deviation, and 95% Student-t CI."""
     values = np.asarray(values, dtype=float)
     mean = values.mean()
     sd = values.std(ddof=1)
@@ -230,6 +237,7 @@ def paired_summary(values: np.ndarray) -> tuple[float, float, float, float]:
 
 
 def paired_brier_contrasts(results: pd.DataFrame) -> pd.DataFrame:
+    """Compute paired Brier score differences across conditions paired by seed."""
     rows: list[dict] = []
 
     # Calibration contrasts: positive means calibration reduced Brier score.
@@ -279,12 +287,12 @@ def paired_brier_contrasts(results: pd.DataFrame) -> pd.DataFrame:
 
 
 def pooled_reliability(predictions: pd.DataFrame) -> pd.DataFrame:
+    """Bin test predictions from all partitions into 10 uniform intervals."""
     rows: list[dict] = []
     edges = np.linspace(0.0, 1.0, 11)
     subset = predictions[predictions["FeatureCondition"] == "All predictors"].copy()
     # Match scikit-learn calibration_curve(strategy="uniform"): values exactly
-    # on an internal bin edge are assigned to the lower bin. This matters for
-    # isotonic calibration, which can produce repeated probabilities at edges.
+    # on an internal bin edge are assigned to the lower bin.
     subset["Bin"] = np.searchsorted(edges[1:-1], subset["Probability"].to_numpy())
     for (model, calibration, bin_id), g in subset.groupby(["Model", "Calibration", "Bin"], sort=True):
         rows.append({
@@ -299,6 +307,7 @@ def pooled_reliability(predictions: pd.DataFrame) -> pd.DataFrame:
 
 
 def make_reliability_figure(pooled: pd.DataFrame, model: str, path: Path) -> None:
+    """Generate and save 10-bin reliability diagram for uncalibrated and calibrated models."""
     fig, ax = plt.subplots(figsize=(8, 6.7))
     for calibration in ["Uncalibrated", "Platt", "Isotonic"]:
         g = pooled[(pooled["Model"] == model) & (pooled["Calibration"] == calibration)].sort_values("Bin")
@@ -321,6 +330,7 @@ def main(
     skip_env_check: bool = False,
     n_jobs: int = 1,
 ) -> None:
+    """Run the 10-seed experiment pipeline and save evaluation metrics and plots."""
     check_environment(skip=skip_env_check)
     output_dir.mkdir(parents=True, exist_ok=True)
     df0 = pd.read_csv(csv_path)
@@ -483,7 +493,7 @@ def main(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Reproduce the purchase-intention calibration experiment.")
+    parser = argparse.ArgumentParser(description="Run the purchase-intention calibration benchmark experiment.")
     parser.add_argument(
         "csv",
         nargs="?",

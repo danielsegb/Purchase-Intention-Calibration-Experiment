@@ -1,6 +1,6 @@
-"""Cross-platform script to reproduce the complete purchase-intention calibration experiment.
+"""Cross-platform runner for the purchase intention calibration experiment.
 
-Runs the data download, experiment execution, and result verification in sequence.
+Runs dataset download, model training and evaluation, and benchmark result verification.
 """
 
 from __future__ import annotations
@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run_step(cmd: list[str], description: str) -> None:
-    print(f"\n{'='*70}\n>> {description}\n   Command: {' '.join(cmd)}\n{'='*70}\n", flush=True)
+    """Execute a subprocess command with progress logging."""
+    print(f"\n{'=' * 70}\n>> {description}\n   Command: {' '.join(cmd)}\n{'=' * 70}\n", flush=True)
     res = subprocess.run(cmd, cwd=str(ROOT))
     if res.returncode != 0:
         print(f"\nERROR: Step failed with return code {res.returncode}: {description}", file=sys.stderr)
@@ -22,8 +23,9 @@ def run_step(cmd: list[str], description: str) -> None:
 
 
 def main() -> None:
+    """Orchestrate the end-to-end experiment workflow."""
     parser = argparse.ArgumentParser(
-        description="Run all steps to reproduce the paper results: download data, run models, verify outputs."
+        description="Run purchase-intention calibration benchmark: download data, fit models, verify results."
     )
     parser.add_argument(
         "--output-dir",
@@ -34,13 +36,13 @@ def main() -> None:
     parser.add_argument(
         "--skip-env-check",
         action="store_true",
-        help="Skip strict Python/package version check (useful if testing with minor variations).",
+        help="Skip strict Python/package version check.",
     )
     parser.add_argument(
         "--n-jobs",
         type=int,
         default=1,
-        help="Number of parallel workers for hyperparameter tuning (default: 1 for exact sequential reproduction; use -1 for all cores).",
+        help="Parallel workers for hyperparameter tuning (default: 1; use -1 for all cores).",
     )
     args = parser.parse_args()
 
@@ -66,12 +68,12 @@ def main() -> None:
     # 3. Verify results
     run_step(
         [py, str(ROOT / "scripts" / "verify_results.py"), "--output-dir", args.output_dir],
-        "Step 3: Verify results against reference outputs and paper tables",
+        "Step 3: Verify results against reference benchmark outputs",
     )
 
-    print("\n" + "="*70)
-    print("SUCCESS: Full reproduction workflow finished successfully!")
-    print("="*70 + "\n")
+    print("\n" + "=" * 70)
+    print("SUCCESS: Experiment run and verification completed successfully!")
+    print("=" * 70 + "\n")
 
 
 if __name__ == "__main__":
