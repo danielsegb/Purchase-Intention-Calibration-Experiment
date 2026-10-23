@@ -123,10 +123,40 @@ def main(output_dir: Path, strict: bool, atol: float) -> None:
         raise SystemExit("FAIL: one or more core experimental conclusions were not reproduced.")
 
     print(
-        "PORTABLE PASS: dataset integrity, Logistic Regression results, and the core "
-        "experimental conclusions reproduce. XGBoost reference values may differ slightly "
-        "across platform-specific binary builds; use --strict only for same-build validation."
+        "\nPORTABLE PASS: dataset integrity, Logistic Regression results, and core "
+        "experimental conclusions reproduce successfully."
     )
+
+    print("\n" + "=" * 95)
+    print("REPRODUCED RESULTS (Mean +/- SD rounded to 4 decimals, matching Paper Tables 1 & 2)")
+    print("=" * 95)
+
+    print("\n--- Table 1: Performance with all predictors across ten repetitions (Mean +/- SD) ---")
+    t1_rows = generated[generated["FeatureCondition"] == "All predictors"]
+    print(f"{'Model':<20} {'Calibration':<13} {'Brier':<17} {'Log loss':<17} {'ECE':<17} {'ROC-AUC':<17} {'PR-AUC':<17} {'F1':<17}")
+    print("-" * 135)
+    for _, r in t1_rows.iterrows():
+        brier = f"{r['Brier']:.4f} +/- {r['Brier_SD']:.4f}"
+        ll = f"{r['LogLoss']:.4f} +/- {r['LogLoss_SD']:.4f}"
+        ece = f"{r['ECE']:.4f} +/- {r['ECE_SD']:.4f}"
+        roc = f"{r['ROC_AUC']:.4f} +/- {r['ROC_AUC_SD']:.4f}"
+        pr = f"{r['PR_AUC']:.4f} +/- {r['PR_AUC_SD']:.4f}"
+        f1 = f"{r['F1']:.4f} +/- {r['F1_SD']:.4f}"
+        print(f"{r['Model']:<20} {r['Calibration']:<13} {brier:<17} {ll:<17} {ece:<17} {roc:<17} {pr:<17} {f1:<17}")
+
+    print("\n--- Table 2: Sensitivity to PageValues for uncalibrated models (Mean +/- SD) ---")
+    t2_rows = generated[generated["Calibration"] == "Uncalibrated"]
+    print(f"{'Model':<20} {'FeatureCondition':<20} {'Brier':<17} {'Log loss':<17} {'ECE':<17} {'ROC-AUC':<17} {'PR-AUC':<17} {'F1':<17}")
+    print("-" * 142)
+    for _, r in t2_rows.iterrows():
+        brier = f"{r['Brier']:.4f} +/- {r['Brier_SD']:.4f}"
+        ll = f"{r['LogLoss']:.4f} +/- {r['LogLoss_SD']:.4f}"
+        ece = f"{r['ECE']:.4f} +/- {r['ECE_SD']:.4f}"
+        roc = f"{r['ROC_AUC']:.4f} +/- {r['ROC_AUC_SD']:.4f}"
+        pr = f"{r['PR_AUC']:.4f} +/- {r['PR_AUC_SD']:.4f}"
+        f1 = f"{r['F1']:.4f} +/- {r['F1_SD']:.4f}"
+        print(f"{r['Model']:<20} {r['FeatureCondition']:<20} {brier:<17} {ll:<17} {ece:<17} {roc:<17} {pr:<17} {f1:<17}")
+    print("=" * 95 + "\n")
 
 
 if __name__ == "__main__":

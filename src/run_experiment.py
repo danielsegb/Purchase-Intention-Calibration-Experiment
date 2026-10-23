@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import sys
 import time
 from pathlib import Path
 
@@ -50,12 +51,19 @@ REQUIRED_SKLEARN_VERSION = "1.8.0"
 REQUIRED_XGBOOST_VERSION = "3.1.3"
 
 
-def check_environment() -> None:
+def check_environment(skip: bool = False) -> None:
     mismatches = []
-    if platform.python_version() != REQUIRED_PYTHON_VERSION:
+    py_ver = sys.version_info
+    if not (py_ver.major == 3 and py_ver.minor == 13):
         mismatches.append(
-            f"Python {platform.python_version()} (required {REQUIRED_PYTHON_VERSION})"
+            f"Python {platform.python_version()} (expected 3.13.x, reference used {REQUIRED_PYTHON_VERSION})"
         )
+    elif platform.python_version() != REQUIRED_PYTHON_VERSION:
+        print(
+            f"Note: Running on Python {platform.python_version()} "
+            f"(reference environment used {REQUIRED_PYTHON_VERSION})."
+        )
+
     if sklearn.__version__ != REQUIRED_SKLEARN_VERSION:
         mismatches.append(
             f"scikit-learn {sklearn.__version__} (required {REQUIRED_SKLEARN_VERSION})"
@@ -64,13 +72,18 @@ def check_environment() -> None:
         mismatches.append(
             f"XGBoost {xgboost.__version__} (required {REQUIRED_XGBOOST_VERSION})"
         )
+
     if mismatches:
         details = "; ".join(mismatches)
-        raise RuntimeError(
-            "Environment version mismatch: "
-            + details
-            + ". Install the pinned dependencies from requirements.txt or environment.yml before running the experiment."
-        )
+        if skip:
+            print(f"WARNING: Environment mismatch ignored (--skip-env-check): {details}")
+        else:
+            raise RuntimeError(
+                "Environment version mismatch: "
+                + details
+                + ".\nInstall the pinned dependencies from requirements.txt, run with Python 3.13, "
+                + "or pass --skip-env-check to proceed anyway."
+            )
 
 
 def expected_calibration_error(y_true: np.ndarray, p: np.ndarray, n_bins: int = 10) -> float:
@@ -129,8 +142,9 @@ def build_lr_pipeline(numeric: list[str], categorical: list[str]) -> Pipeline:
         ],
         remainder="drop",
     )
+    # L2 regularisation is the default in scikit-learn lbfgs solver;
+    # omitting penalty='l2' avoids scikit-learn 1.8+ FutureWarning.
     model = LogisticRegression(
-        penalty="l2",
         solver="lbfgs",
         max_iter=2000,
         random_state=0,
@@ -163,6 +177,7 @@ def fit_tuned_model(
     numeric: list[str],
     categorical: list[str],
     seed: int,
+    n_jobs: int = 1,
 ):
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
     if model_name == "Logistic Regression":
@@ -179,7 +194,7 @@ def fit_tuned_model(
         param_grid=grid,
         scoring="neg_log_loss",
         cv=cv,
-        n_jobs=1,
+        n_jobs=n_jobs,
         refit=True,
         return_train_score=False,
     )
@@ -300,8 +315,13 @@ def make_reliability_figure(pooled: pd.DataFrame, model: str, path: Path) -> Non
     plt.close(fig)
 
 
-def main(csv_path: Path, output_dir: Path) -> None:
-    check_environment()
+def main(
+    csv_path: Path,
+    output_dir: Path,
+    skip_env_check: bool = False,
+    n_jobs: int = 1,
+) -> None:
+    check_environment(skip=skip_env_check)
     output_dir.mkdir(parents=True, exist_ok=True)
     df0 = pd.read_csv(csv_path)
 
@@ -366,7 +386,7 @@ def main(csv_path: Path, output_dir: Path) -> None:
             for model_name in ["Logistic Regression", "XGBoost"]:
                 t0 = time.perf_counter()
                 best, best_params, cv_logloss = fit_tuned_model(
-                    model_name, X_train, y_train, numeric, categorical, seed
+                    model_name, X_train, y_train, numeric, categorical, seed, n_jobs=n_jobs
                 )
                 tune_seconds = time.perf_counter() - t0
                 tuning_rows.append({
@@ -472,5 +492,16 @@ if __name__ == "__main__":
         help="Path to online_shoppers_intention.csv",
     )
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
+    parser.add_argument(
+        "--skip-env-check",
+        action="store_true",
+        help="Skip strict environment version check (warning will be displayed).",
+    )
+    parser.add_argument(
+        "--n-jobs",
+        type=int,
+        default=1,
+        help="Number of parallel workers for hyperparameter tuning (default: 1; use -1 for all cores).",
+    )
     args = parser.parse_args()
-    main(args.csv, args.output_dir)
+    main(args.csv, args.output_dir, skip_env_check=args.skip_env_check, n_jobs=args.n_jobs)

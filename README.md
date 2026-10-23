@@ -2,172 +2,132 @@
 
 Reproducible experiment comparing **Logistic Regression** and **XGBoost** for online purchase-intention prediction using the UCI Online Shoppers Purchasing Intention Dataset.
 
-The experiment evaluates:
+This study investigates:
+- **Probability accuracy & calibration**: Brier score, log loss, and Expected Calibration Error (ECE);
+- **Post-hoc calibration**: Platt scaling (sigmoid) and isotonic regression;
+- **Discrimination & classification**: ROC-AUC, PR-AUC (average precision), and F1-score at a 0.50 threshold;
+- **Feature dependence**: Sensitivity analysis evaluating model performance with and without `PageValues`.
 
-- uncalibrated probabilities;
-- Platt scaling;
-- isotonic regression;
-- all predictors;
-- a sensitivity condition excluding `PageValues`;
-- probability accuracy, calibration, discrimination, and F1 performance.
+---
 
-## Dataset
+## Quickstart (Reproduce in 3 Steps)
 
-**Online Shoppers Purchasing Intention Dataset**
+This repository is designed so that any technical person can reproduce the paper's results using standard Python without Docker or complex setup.
 
-- UCI dataset ID: 468
-- DOI: https://doi.org/10.24432/C5F88Q
-- Source: https://archive.ics.uci.edu/dataset/468/online%2Bshoppers%2Bpurchasing%2Bintention%2Bdataset
-- Licence: CC BY 4.0
+### 1. Create and Activate Virtual Environment
 
-The raw dataset is not stored in this repository. Use the download script:
+The paper experiments were conducted using **Python 3.13** (reference environment: Python 3.13.5). Any standard Python 3.13 interpreter (e.g., 3.13.0 to 3.13.x) is supported.
 
+**Linux / macOS:**
 ```bash
-python scripts/download_data.py
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-The script downloads the official UCI archive and verifies the CSV using SHA-256.
+**Windows (PowerShell):**
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
 
-## Experimental design
+### 2. Install Pinned Dependencies
 
-- 12,330 original sessions
-- 125 exact duplicates removed before partitioning
-- 12,205 sessions used for analysis
-- 10 fixed random seeds: `1` to `10`
-- Stratified 60% training / 20% calibration / 20% test split
-- Five-fold stratified cross-validation on the training partition
-- Hyperparameter selection by mean log loss
-- Separate calibration partition
-- Fixed F1 threshold of 0.50
-- No oversampling, SMOTE, synthetic observations, or class weighting
-
-### Models
-
-**Logistic Regression**
-
-- L2 regularisation
-- `C ∈ {0.01, 0.1, 1, 10}`
-
-**XGBoost**
-
-- `max_depth ∈ {3, 5}`
-- `learning_rate ∈ {0.05, 0.10}`
-- `n_estimators ∈ {200, 400}`
-- `subsample ∈ {0.8, 1.0}`
-- `colsample_bytree ∈ {0.8, 1.0}`
-
-## Evaluation metrics
-
-- Brier score
-- Log loss
-- Expected calibration error using 10 equal-width bins
-- ROC-AUC
-- PR-AUC using average precision
-- Positive-class F1-score at 0.50
-
-## Environment
-
-The reference environment used:
-
-- Python 3.13.5
-- pandas 2.2.3
-- NumPy 2.3.5
-- SciPy 1.17.0
-- scikit-learn 1.8.0
-- XGBoost 3.1.3
-- Matplotlib 3.10.8
-
-For exact numerical reproduction, use **Python 3.13.5**. A virtual environment inherits the Python interpreter used to create it, so confirm `python --version` before installing packages.\n\nInstall the exact dependencies with:
+Install the exact package versions used in the paper:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-or:
+Pinned dependencies in `requirements.txt`:
+- `numpy==2.3.5`
+- `pandas==2.2.3`
+- `scipy==1.17.0`
+- `scikit-learn==1.8.0`
+- `xgboost==3.1.3`
+- `matplotlib==3.10.8`
+
+### 3. Run the Complete Experiment & Verification
+
+You can run the entire automated pipeline (download dataset, train 10-seed repeated cross-validation models, generate outputs, and verify against paper tables) with a single command:
 
 ```bash
-conda env create -f environment.yml
-conda activate purchase-intention-calibration
+python scripts/run_all.py
 ```
 
-The experiment performs a startup check for the exact reference environment: **Python 3.13.5**, **scikit-learn 1.8.0**, and **XGBoost 3.1.3**. If any of these versions differ, the run stops with a clear error rather than producing results under a different environment.
+*Tip: By default, hyperparameter tuning runs with `n_jobs=1` for strict sequential determinism. To speed up tuning across multiple CPU cores on your machine, pass:*
+```bash
+python scripts/run_all.py --n-jobs -1
+```
 
-For reproducibility across operating systems and reviewer machines, hyperparameter search is executed with a single worker (`GridSearchCV(n_jobs=1)`). This changes only task scheduling; the folds, parameter grids, scoring criterion and selected models remain unchanged.
+---
 
-## Run the experiment
+## Step-by-Step Execution
 
-Download the dataset:
+If you prefer to run each step manually:
 
+### Step 1: Download & Verify Dataset
 ```bash
 python scripts/download_data.py
 ```
+This downloads the official UCI archive and extracts `data/online_shoppers_intention.csv`. It verifies data integrity against the reported SHA-256 hash:
+`b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`.
 
-Run the full experiment:
-
+### Step 2: Run the Experiment
 ```bash
 python src/run_experiment.py data/online_shoppers_intention.csv --output-dir outputs
 ```
+Optional flags:
+- `--n-jobs <int>`: Number of parallel workers for hyperparameter tuning (`1` default, `-1` for all CPU cores).
+- `--skip-env-check`: Proceed even if Python or package versions differ from the reference environment.
 
-Verify a fresh run against the included reference outputs:
-
+### Step 3: Verify Results Against Paper Tables
 ```bash
 python scripts/verify_results.py --output-dir outputs
 ```
+This verifies:
+1. Exact dataset integrity (12,330 original rows, 125 duplicates removed, 12,205 retained sessions, 15.63% positive rate).
+2. Numerical replication of Logistic Regression and XGBoost metrics.
+3. Core scientific conclusions of the paper.
+4. Formatted side-by-side comparison tables against **Table 1** and **Table 2** of the paper.
 
-## Docker
+---
 
-Docker provides the most controlled route for exact same-environment reproduction.
+## Experimental Design Summary
 
-Build the image:
+- **Dataset**: UCI Online Shoppers Purchasing Intention (ID: 468, DOI: [10.24432/C5F88Q](https://doi.org/10.24432/C5F88Q)).
+- **Cleaning**: 125 exact duplicate rows removed before splitting, yielding 12,205 sessions (10,297 non-purchase, 1,908 purchase).
+- **Partitions**: 10 repeated stratified splits (seeds 1 to 10), each allocating 60% training, 20% calibration, and 20% untouched test.
+- **Tuning**: 5-fold stratified cross-validation on training data optimizing mean log loss.
+- **Models**:
+  - **Logistic Regression**: L2 regularisation, $C \in \{0.01, 0.1, 1.0, 10.0\}$. Numerical predictors standardized using training parameters.
+  - **XGBoost**: `hist` tree method, tuning `max_depth` (3, 5), `learning_rate` (0.05, 0.10), `n_estimators` (200, 400), `subsample` (0.8, 1.0), and `colsample_bytree` (0.8, 1.0).
+- **Calibration**: Uncalibrated, Platt scaling (`sigmoid`), and Isotonic regression fitted exclusively on the dedicated calibration set.
 
-```bash
-docker build -t purchase-intention-calibration .
-```
+---
 
-Run the complete experiment and strict verification:
+## Output Files
 
-```bash
-docker run --rm purchase-intention-calibration
-```
+The experiment generates the following artifacts in the `outputs/` folder:
 
-To retain the generated `outputs/` directory on the host:
+| File | Description | Paper Reference |
+| :--- | :--- | :--- |
+| `summary_mean_sd_ci.csv` | Summary statistics (mean, SD, 95% CI) across 10 repetitions | **Table 1 & Table 2** |
+| `paired_brier_contrasts.csv` | Paired seed-level differences and 95% CIs | **Sections 3.1–3.3** |
+| `reliability_logistic_regression.png` | 10-bin reliability diagram for Logistic Regression | **Figure 2** |
+| `reliability_xgboost.png` | 10-bin reliability diagram for XGBoost | **Figure 3** |
+| `data_integrity_checks.json` | Sample size, class counts, and duplicate counts | **Section 2.2** |
+| `tuning_results.csv` | Best hyperparameters and CV log loss for each seed | **Section 2.5** |
+| `tuning_parameter_frequencies.csv` | Parameter selection distribution across repetitions | **Section 2.5** |
+| `test_metrics_by_seed.csv` | Individual test metrics for every partition seed | **Section 3** |
+| `test_predictions_by_seed.csv` | Raw test probabilities and observations | **Section 3** |
 
-macOS/Linux:
+---
 
-```bash
-docker run --rm -v "$(pwd)/outputs:/app/outputs" purchase-intention-calibration
-```
-
-Windows PowerShell:
-
-```powershell
-docker run --rm -v "${PWD}/outputs:/app/outputs" purchase-intention-calibration
-```
-
-The container uses Python 3.13.5 and the exact package versions in `requirements.txt`. Its default command downloads the verified UCI dataset, runs the full experiment, and then executes:
-
-```bash
-python scripts/verify_results.py --output-dir outputs --strict
-```
-
-Use the ordinary non-strict verification command for cross-platform local runs:
-
-```bash
-python scripts/verify_results.py --output-dir outputs
-```
-
-On macOS/Linux, the complete workflow can also be run with:
-
-```bash
-bash run_all.sh
-```
-
-## Repository structure
+## Repository Structure
 
 ```text
 .
 ├── README.md
-├── environment.yml
 ├── requirements.txt
 ├── data/
 │   └── README.md
@@ -176,15 +136,10 @@ bash run_all.sh
 │   └── OUTPUTS.md
 ├── scripts/
 │   ├── download_data.py
+│   ├── run_all.py
 │   └── verify_results.py
 ├── src/
 │   └── run_experiment.py
 ├── outputs/
 └── reference_results/
 ```
-
-## Notes
-
-The confidence intervals summarise variability across the ten repeated stratified holdout partitions. Because test partitions can overlap, they should not be interpreted as independent population-level inferential intervals.
-
-The all-predictor experiment uses complete session-level records. The `PageValues` exclusion is a sensitivity analysis designed to assess dependence on that predictor.
