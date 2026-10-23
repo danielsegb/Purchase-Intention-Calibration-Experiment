@@ -114,6 +114,48 @@ Verify a fresh run against the included reference outputs:
 python scripts/verify_results.py --output-dir outputs
 ```
 
+## Docker
+
+Docker provides the most controlled route for exact same-environment reproduction.
+
+Build the image:
+
+```bash
+docker build -t purchase-intention-calibration .
+```
+
+Run the complete experiment and strict verification:
+
+```bash
+docker run --rm purchase-intention-calibration
+```
+
+To retain the generated `outputs/` directory on the host:
+
+macOS/Linux:
+
+```bash
+docker run --rm -v "$(pwd)/outputs:/app/outputs" purchase-intention-calibration
+```
+
+Windows PowerShell:
+
+```powershell
+docker run --rm -v "${PWD}/outputs:/app/outputs" purchase-intention-calibration
+```
+
+The container uses Python 3.13.5 and the exact package versions in `requirements.txt`. Its default command downloads the verified UCI dataset, runs the full experiment, and then executes:
+
+```bash
+python scripts/verify_results.py --output-dir outputs --strict
+```
+
+Use the ordinary non-strict verification command for cross-platform local runs:
+
+```bash
+python scripts/verify_results.py --output-dir outputs
+```
+
 On macOS/Linux, the complete workflow can also be run with:
 
 ```bash
