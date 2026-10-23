@@ -45,6 +45,28 @@ XGB_GRID = {
 }
 METRICS = ["Brier", "LogLoss", "ECE", "ROC_AUC", "PR_AUC", "F1"]
 
+REQUIRED_SKLEARN_VERSION = "1.8.0"
+REQUIRED_XGBOOST_VERSION = "3.1.3"
+
+
+def check_environment() -> None:
+    mismatches = []
+    if sklearn.__version__ != REQUIRED_SKLEARN_VERSION:
+        mismatches.append(
+            f"scikit-learn {sklearn.__version__} (required {REQUIRED_SKLEARN_VERSION})"
+        )
+    if xgboost.__version__ != REQUIRED_XGBOOST_VERSION:
+        mismatches.append(
+            f"XGBoost {xgboost.__version__} (required {REQUIRED_XGBOOST_VERSION})"
+        )
+    if mismatches:
+        details = "; ".join(mismatches)
+        raise RuntimeError(
+            "Environment version mismatch: "
+            + details
+            + ". Install the pinned dependencies from requirements.txt or environment.yml before running the experiment."
+        )
+
 
 def expected_calibration_error(y_true: np.ndarray, p: np.ndarray, n_bins: int = 10) -> float:
     """Expected calibration error using equal-width bins over [0, 1]."""
@@ -152,7 +174,7 @@ def fit_tuned_model(
         param_grid=grid,
         scoring="neg_log_loss",
         cv=cv,
-        n_jobs=-1,
+        n_jobs=1,
         refit=True,
         return_train_score=False,
     )
@@ -274,6 +296,7 @@ def make_reliability_figure(pooled: pd.DataFrame, model: str, path: Path) -> Non
 
 
 def main(csv_path: Path, output_dir: Path) -> None:
+    check_environment()
     output_dir.mkdir(parents=True, exist_ok=True)
     df0 = pd.read_csv(csv_path)
 
