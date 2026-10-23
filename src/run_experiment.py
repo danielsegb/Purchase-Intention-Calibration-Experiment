@@ -45,12 +45,17 @@ XGB_GRID = {
 }
 METRICS = ["Brier", "LogLoss", "ECE", "ROC_AUC", "PR_AUC", "F1"]
 
+REQUIRED_PYTHON_VERSION = "3.13.5"
 REQUIRED_SKLEARN_VERSION = "1.8.0"
 REQUIRED_XGBOOST_VERSION = "3.1.3"
 
 
 def check_environment() -> None:
     mismatches = []
+    if platform.python_version() != REQUIRED_PYTHON_VERSION:
+        mismatches.append(
+            f"Python {platform.python_version()} (required {REQUIRED_PYTHON_VERSION})"
+        )
     if sklearn.__version__ != REQUIRED_SKLEARN_VERSION:
         mismatches.append(
             f"scikit-learn {sklearn.__version__} (required {REQUIRED_SKLEARN_VERSION})"
