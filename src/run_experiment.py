@@ -441,11 +441,15 @@ def main(csv_path: Path, output_dir: Path) -> None:
 
     versions = {
         "Python": platform.python_version(),
+        "Platform": platform.platform(),
+        "Machine": platform.machine(),
+        "Processor": platform.processor(),
         "pandas": pd.__version__,
         "NumPy": np.__version__,
         "SciPy": scipy.__version__,
         "scikit-learn": sklearn.__version__,
         "XGBoost": xgboost.__version__,
+        "XGBoost_build_info": xgboost.build_info(),
         "Matplotlib": plt.matplotlib.__version__,
     }
     with (output_dir / "software_versions.json").open("w", encoding="utf-8") as f:
